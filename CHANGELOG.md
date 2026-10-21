@@ -14,11 +14,16 @@ All notable changes are recorded here. The format follows
 - `MANIFEST.in` (`prune tests`), `scripts/check_dist.py` and `tests/test_packaging.py`: the source
   distribution excludes `tests/`, and sdist and wheel are installed and smoke-tested.
 - CI: Python 3.15.0 (stable) is a required job; the `package` job runs the distribution checker.
-  No GitHub Actions run has occurred.
+  (When this entry was first written no GitHub Actions run had occurred; see the entry below.)
 - Verified on Linux across Python 3.11.17, 3.12.15, 3.13.16, 3.14.8 and 3.15.0 (see the release
   notes). Owner-observed on Windows 10 (Python 3.13.1) for the temporary candidate: 1700 collected,
-  1690 passed, 10 skipped, 0 failed, `scripts\check.ps1` passed, packaging checked. macOS and
-  GitHub Actions are not observed.
+  1690 passed, 10 skipped, 0 failed, `scripts\check.ps1` passed, packaging checked. macOS is
+  not observed.
+- GitHub Actions: an earlier run failed because `tests/test_packaging.py` compared `MANIFEST.in`
+  bytes with LF while Windows checked the file out with CRLF. Commit `77aa31e` made that test
+  line-ending independent, and the run it triggered is reported by the owner as successful (a green
+  indicator in a screenshot). The run ID and job-level results were not inspected, and this does
+  not show macOS support.
 
 ### Added
 
@@ -35,7 +40,8 @@ All notable changes are recorded here. The format follows
 - Synthetic labelled detector corpus, privacy-regression tests and repository guards.
 - Documentation: architecture, threat model, detection limitations, responsible use, testing,
   development, dependencies, Gitleaks guidance (documentation only).
-- GitHub Actions workflow (not yet run remotely), issue/PR templates, Dependabot for actions.
+- GitHub Actions workflow, issue/PR templates, Dependabot for actions (see the GitHub Actions entry
+  under M11-rc2 for what has been observed).
 
 ### Security hardening
 
@@ -49,7 +55,7 @@ All notable changes are recorded here. The format follows
 - The repository-wide email hygiene test now allows exactly the approved security contact, and only
   in `SECURITY.md`; every other non-reserved address is still rejected.
 - `.gitignore` also ignores `dist-check/`. The CI workflow comment records that the pinned action
-  SHAs were checked against upstream; the workflow itself has not run.
+  SHAs were checked against upstream (the workflow had not run at that point).
 
 ### Testing
 

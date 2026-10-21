@@ -86,8 +86,9 @@ M11-rc2 results, kept in separate categories:
    - The privilege context was an elevated session; non-elevated Windows is unverified. Windows
      Python versions other than 3.13.1 are unverified.
 6. **macOS testing: not yet observed.** The temporary ZIP was not tested on macOS.
-7. **GitHub Actions: not run.** The Linux and Windows results above do not show that the workflow
-   passes.
+7. **GitHub Actions (owner-reported; separate from the local results above):** see the GitHub
+   Actions paragraph under "Windows" below; the local Linux and Windows results are not CI
+   results.
 
 ## Verification record
 
@@ -135,8 +136,7 @@ Ruff 0.17.0 and Pyright 1.1.414.
   including the release candidate that carries this file, is recorded in the separate acceptance
   report for that archive and is not claimed here.
 
-GitHub Actions: the workflow has never run. It is validated only by static tests. No remote CI
-result exists.
+GitHub Actions has run in the project's GitHub repository (<https://github.com/sabbir-glitch/datashuddhi-bd>). An earlier run failed because `tests/test_packaging.py` compared the bytes of `MANIFEST.in` with LF line endings while the Windows runner checked the file out with CRLF. The fix, commit `77aa31e` ("Make packaging manifest test line-ending independent"), triggered the run that the owner reports as successful (a green success indicator in an owner-provided screenshot). This is owner-reported evidence: the run ID, the individual job results and the test counts were not inspected for this record, so it supports only that the run was shown as successful, not that every job's output was reviewed. It says nothing about macOS, which has not been tested.
 
 `pip-audit` on the pinned development tools: no known vulnerabilities at the time of one local run
 (scope described in [dependencies.md](dependencies.md)).
@@ -152,8 +152,8 @@ are unverified.
 
 ## Open items before any public release
 
-1. Run the workflow on GitHub for the first time and inspect every job. It has **not run**; the
-   pinned action SHAs (`actions/checkout`, `actions/setup-python`) have been checked against their
+1. Inspect every job of the GitHub Actions run (its job-level results were not inspected for this
+   record); the Python 3.15 job and the package job in particular. The pinned action SHAs (`actions/checkout`, `actions/setup-python`) have been checked against their
    upstream commit and release pages, which is separate from running the workflow.
 2. Enable private vulnerability reporting on the repository once it exists (the advisory link in
    `SECURITY.md` and `.github/ISSUE_TEMPLATE/config.yml` works only then).

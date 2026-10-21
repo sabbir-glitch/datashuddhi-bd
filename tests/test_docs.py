@@ -151,7 +151,10 @@ def test_markdown_emphasis_is_balanced_in_each_paragraph() -> None:
 def test_documents_do_not_claim_a_remote_ci_result(rel: str) -> None:
     text = " ".join(read(rel).split())
     assert "GitHub Actions" in text
-    assert "has **not** been run" in text or "has never run" in text
+    assert "77aa31e" in text
+    assert "owner-reported" in text
+    assert "individual job results" in text
+    assert "macOS, which has not been tested" in text
     lowered = text.lower()
     for claim in ("ci is green", "ci passed", "workflow passed", "passed on github"):
         assert claim not in lowered
@@ -351,11 +354,12 @@ def test_m11_rc2_matrix_is_recorded_and_kept_apart_from_other_evidence() -> None
     assert "Peak-memory behaviour was therefore not tested on Windows" in flat_notes
     assert "the individual skip lines were not supplied" in flat_notes
     assert "macOS testing: not yet observed" in flat_notes
-    assert "do not show that the workflow passes" in flat_notes
+    assert "the local Linux and Windows results are not CI results" in flat_notes
+    assert "GitHub Actions (owner-reported; separate from the local results above)" in flat_notes
     assert "historical evidence, not M11-rc2 results" in flat_notes
     readme = " ".join(read("README.md").split())
     assert "1696 collected, 1695 passed, 0 failed, 1 skipped" in readme
-    assert "Not observed:** macOS and GitHub Actions" in readme
+    assert "Not observed:** macOS." in readme
     assert "peak-memory behaviour was not tested on Windows" in readme
 
 
@@ -367,6 +371,11 @@ def test_obsolete_rc2_progress_statements_are_gone(rel: str) -> None:
         "Python 3.13.16 only (not the full matrix)",
         "verification still in progress",
         "Not run for M11-rc2: the Python 3.11-3.15 matrix",
+        "workflow has never run",
+        "has **not** been run",
+        "No remote CI result exists",
+        "that job has not been run on GitHub",
+        "a green remote run has not been observed",
         "has been checked on Linux with Python 3.13.16 only",
         "Windows testing of M11-rc2: not yet observed",
         "an expectation, not an observation",

@@ -57,6 +57,24 @@ def test_manifest_prunes_tests_and_nothing_else() -> None:
     assert (ROOT / "MANIFEST.in").read_text(encoding="utf-8") == "prune tests\n"
 
 
+@pytest.mark.parametrize("raw", [b"prune tests\n", b"prune tests\r\n"], ids=["lf", "crlf"])
+def test_manifest_text_mode_accepts_lf_and_crlf(tmp_path: Path, raw: bytes) -> None:
+    path = tmp_path / "MANIFEST.in"
+    path.write_bytes(raw)
+    assert path.read_text(encoding="utf-8") == "prune tests\n"
+
+
+@pytest.mark.parametrize(
+    "raw",
+    [b"prune tests", b"prune tests\n\n", b"prune tests\nprune docs\n", b"prune src\n"],
+    ids=["no-final-newline", "extra-blank-line", "extra-directive", "wrong-directive"],
+)
+def test_manifest_text_mode_still_rejects_other_content(tmp_path: Path, raw: bytes) -> None:
+    path = tmp_path / "MANIFEST.in"
+    path.write_bytes(raw)
+    assert path.read_text(encoding="utf-8") != "prune tests\n"
+
+
 def test_good_sdist_has_no_problems() -> None:
     assert check_dist.sdist_problems(GOOD_SDIST) == []
 

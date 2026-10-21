@@ -118,7 +118,8 @@ python scripts/check_dist.py --dist-dir dist-check
 ```
 
 `tests/test_packaging.py` tests the checker logic with fake archives. The CI `package` job runs
-the same commands; that job has not been run on GitHub.
+the same commands. The owner reports a successful GitHub Actions run (commit `77aa31e`); the
+`package` job's own result was not inspected for this record.
 
 ## Python matrix record (M11-rc2, Linux)
 
@@ -146,4 +147,6 @@ there as well; see above).
 - They do not prove detection quality on real data; the corpus is small and synthetic.
 - Passing on one platform does not prove another. See the verification record in the README and
   CHANGELOG for what was actually run where.
-- The GitHub Actions workflow is checked statically; a green remote run has not been observed.
+- GitHub Actions: an earlier run failed on a line-ending-sensitive `MANIFEST.in` assertion; the run
+  for commit `77aa31e` is reported by the owner as successful. Run ID, job-level results and counts
+  were not inspected here, and it does not show macOS support.

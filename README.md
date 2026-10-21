@@ -98,8 +98,8 @@ M11-rc2 (candidate; see the M11-rc2 section of the [release notes](docs/release-
   tests skip on Windows (the measurement needs `/proc/self/status`), so **peak-memory behaviour
   was not tested on Windows**. Details and the skip list are in the
   [release notes](docs/release-notes.md).
-- **Not observed:** macOS and GitHub Actions. The Linux and Windows results above do not show
-  that the GitHub Actions workflow passes; it has never run.
+- **Not observed:** macOS. The Linux and Windows results above are local runs; the GitHub
+  Actions record is in its own paragraph below.
 
 M11-rc1 (historical evidence, not M11-rc2 results): Linux (cloud development environment, Python 3.11,
 3.12, 3.13, 3.14 and 3.15.0), Ruff lint, Ruff format, Pyright and pytest were run; see
@@ -125,8 +125,7 @@ Windows PowerShell 5.1, Python 3.13.1, pytest 9.1.1, Ruff 0.17.0, Pyright 1.1.41
 - These results describe the named archives only. Windows verification of any later archive is
   recorded in the acceptance report that accompanies that archive, not in this file.
 
-GitHub Actions has **not** been run: the workflow is checked only by static tests, and no remote
-CI result exists.
+GitHub Actions has run in the project's GitHub repository (<https://github.com/sabbir-glitch/datashuddhi-bd>). An earlier run failed because `tests/test_packaging.py` compared the bytes of `MANIFEST.in` with LF line endings while the Windows runner checked the file out with CRLF. The fix, commit `77aa31e` ("Make packaging manifest test line-ending independent"), triggered the run that the owner reports as successful (a green success indicator in an owner-provided screenshot). This is owner-reported evidence: the run ID, the individual job results and the test counts were not inspected for this record, so it supports only that the run was shown as successful, not that every job's output was reviewed. It says nothing about macOS, which has not been tested.
 
 ## Documentation
 

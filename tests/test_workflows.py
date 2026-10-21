@@ -130,8 +130,9 @@ def test_ci_runs_the_required_checks() -> None:
 
 def test_ci_file_makes_no_unverified_support_claims() -> None:
     content = text(CI)
-    # The workflow must keep saying it has not run until a real run has been observed...
-    assert "NOT yet been run on" in content or "has NOT yet been run" in content
+    # The header must not hard-code a run result, and must say where results are tracked...
+    assert "NOT yet been run" not in content
+    assert "tracked through GitHub Actions runs" in content
     # ...and must say where the action pins came from and what has been checked about them.
     assert "git ls-remote" in content
     assert "checked against the" in content

@@ -6,8 +6,9 @@
 #   * credentials are not persisted into the checked-out repository
 #   * third-party actions are pinned to full commit SHAs (the tag is kept in a comment)
 #
-# VERIFICATION STATUS: this file has been schema-validated, but it has NOT yet been run on
-# GitHub. Do not treat any Python/OS combination below as supported until a run is observed.
+# VERIFICATION STATUS: this file is checked statically by tests/test_workflows.py. Its results
+# are tracked through GitHub Actions runs on the repository and are not recorded in this comment;
+# do not treat a Python/OS combination below as supported unless its job result was inspected.
 # The action SHAs were read with `git ls-remote` on 2026-10-15 and have been checked against the
 # upstream commit and release pages of actions/checkout (v7.0.1) and actions/setup-python
 # (v7.0.0). That verifies the pins only; it says nothing about whether this workflow passes.

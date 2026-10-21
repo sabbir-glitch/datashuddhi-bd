@@ -37,7 +37,7 @@ development-tool versions listed above against the vulnerability data its defaul
 at the time of the run. It does not audit the project's own code, the Node.js checker that Pyright
 downloads, GitHub Actions, or the operating system, and a clean result means "no known
 vulnerability in that data at that time", not "secure". One local run on 2026-10-15 (pip-audit in
-the cloud environment) reported "No known vulnerabilities found"; the CI job has not run remotely.
+the cloud environment) reported "No known vulnerabilities found"; the result of the CI `dependency-audit` job in the owner's GitHub Actions run was not inspected.
 
 CI additionally uses `pip-audit` (pinned in the workflow) to check the pinned development tools
 against known-vulnerability data. This sends package names and versions, not scanned content, to
