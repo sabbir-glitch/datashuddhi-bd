@@ -1,0 +1,47 @@
+name: Bug report
+description: Something does not work as documented
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Never paste real personal data, real scan reports, passwords, tokens or keys.**
+        Reproduce the problem with a tiny synthetic file (for example `alice@example.com`).
+        Security vulnerabilities must NOT be reported here: see SECURITY.md.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Minimal synthetic reproduction
+      description: A short synthetic input file and the exact command.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Output of `datashuddhi --version`
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Operating system, shell and Python version
+    validations:
+      required: true
+  - type: textarea
+    id: output
+    attributes:
+      label: Output (already masked by the tool; check it contains nothing sensitive)
+      render: text
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: Confirmation
+      options:
+        - label: I have checked that nothing I pasted contains real personal data or secrets.
+          required: true

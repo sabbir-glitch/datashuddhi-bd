@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/sabbir-glitch/datashuddhi-bd/security/advisories/new
+    about: >-
+      Do NOT open a public issue for a vulnerability. Follow SECURITY.md. (This link works only
+      once the repository exists and private vulnerability reporting is enabled; otherwise use
+      the email address in SECURITY.md.)

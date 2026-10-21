@@ -1,0 +1,35 @@
+# Python bytecode and packaging
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+dist-check/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+
+# Tool caches and coverage output
+.pytest_cache/
+.ruff_cache/
+.pyright/
+.coverage
+.coverage.*
+htmlcov/
+
+# Local environment files (never commit real ones)
+/.env
+/.env.*
+
+# Scan reports are local outputs and can reveal file names and locations
+/reports/
+datashuddhi-report*.json
+
+# Editors and operating systems
+.vscode/
+.idea/
+Thumbs.db
+Desktop.ini
+.DS_Store

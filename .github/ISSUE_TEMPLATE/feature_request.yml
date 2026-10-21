@@ -1,0 +1,27 @@
+name: Feature request
+description: Suggest an improvement within the project's scope
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        DataShuddhi BD is a local-first command-line tool. A web dashboard, cloud service,
+        telemetry and machine-learning models are out of scope for now. Secret detection is
+        not part of version 0.1.0.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behaviour
+    validations:
+      required: true
+  - type: textarea
+    id: privacy
+    attributes:
+      label: Privacy and security considerations
+      description: Could this expose raw values, add network access, or write files?

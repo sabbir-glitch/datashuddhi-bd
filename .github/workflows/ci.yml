@@ -1,0 +1,155 @@
+# Continuous integration for DataShuddhi BD.
+#
+# Security posture:
+#   * read-only token (permissions: contents: read), no secrets used anywhere
+#   * no pull_request_target and no workflow_run triggers
+#   * credentials are not persisted into the checked-out repository
+#   * third-party actions are pinned to full commit SHAs (the tag is kept in a comment)
+#
+# VERIFICATION STATUS: this file has been schema-validated, but it has NOT yet been run on
+# GitHub. Do not treat any Python/OS combination below as supported until a run is observed.
+# The action SHAs were read with `git ls-remote` on 2026-10-15 and have been checked against the
+# upstream commit and release pages of actions/checkout (v7.0.1) and actions/setup-python
+# (v7.0.0). That verifies the pins only; it says nothing about whether this workflow passes.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+  PYTHONDONTWRITEBYTECODE: "1"
+
+jobs:
+  lint-and-types:
+    name: Lint, format, types
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.13"
+      - name: Install (pinned development constraints)
+        run: python -m pip install -e ".[dev]" -c constraints-dev.txt
+      - name: Ruff lint
+        run: python -m ruff check .
+      - name: Ruff format check
+        run: python -m ruff format --check .
+      - name: Pyright
+        run: python -m pyright
+
+  tests:
+    name: Tests (${{ matrix.os }}, Python ${{ matrix.python }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python: ["3.11", "3.12", "3.13", "3.14"]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install (pinned development constraints)
+        run: python -m pip install -e ".[dev]" -c constraints-dev.txt
+      - name: Pytest (skips are listed so none are silent)
+        run: python -m pytest -rs
+
+  python-3-15:
+    # Python 3.15.0 is a stable release (9 October 2026) and the project declares
+    # requires-python >=3.11 with no upper bound, so this job is required: a failure fails the
+    # build. It is Linux only; Windows with 3.15 is not covered by any job.
+    name: Tests (ubuntu-latest, Python 3.15)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.15"
+      - name: Install (pinned development constraints)
+        run: python -m pip install -e ".[dev]" -c constraints-dev.txt
+      - name: Pytest (skips are listed so none are silent)
+        run: python -m pytest -rs
+
+  windows-check-script:
+    # Exercises scripts/check.ps1 (the script used for local Windows development) on a
+    # GitHub-hosted Windows runner, using a real virtual environment at .venv.
+    name: scripts/check.ps1 (windows-latest, Python 3.13)
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.13"
+      - name: Create .venv and install
+        shell: pwsh
+        run: |
+          python -m venv .venv
+          .\.venv\Scripts\python.exe -m pip install -e ".[dev]" -c constraints-dev.txt
+      - name: Run scripts/check.ps1
+        shell: pwsh
+        run: .\scripts\check.ps1
+
+  package:
+    name: Build and smoke-test the package
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.13"
+      - name: Build sdist and wheel
+        run: |
+          python -m pip install "build==1.6.1"
+          python -m build --outdir dist-check
+      - name: Check archive contents, then install and smoke-test the sdist and the wheel
+        # scripts/check_dist.py lists both archives without extracting them, requires src/,
+        # README.md, LICENSE and metadata in the sdist, rejects any tests/ path, installs the
+        # sdist and the wheel into two separate clean virtual environments (not editable), runs
+        # `datashuddhi --version` and a synthetic JSON scan, and fails on an unexpected exit
+        # code, a missing mask or a raw email in the output.
+        run: python scripts/check_dist.py --dist-dir dist-check
+
+  dependency-audit:
+    # Audits the pinned development tools for known vulnerabilities. It needs network access
+    # to the Python Package Index and an advisory service. The runtime has no dependencies.
+    name: Dependency audit (pip-audit)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.13"
+      - name: Run pip-audit against the pinned constraints
+        run: |
+          python -m pip install "pip-audit==2.10.1"
+          python -m pip_audit -r constraints-dev.txt --no-deps --disable-pip

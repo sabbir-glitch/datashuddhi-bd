@@ -1,0 +1,48 @@
+name: False positive or false negative
+description: A value was reported that is not personal data, or a value was missed
+labels: [detection]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Do NOT paste a real email address, phone number, ID or any real data.**
+        Describe the *shape* of the value or give a synthetic equivalent, for example
+        `alice@example.com` or one of the patterned numbers in `tests/synthetic.py`.
+        Detection limits are documented in docs/data-detection-limitations.md.
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Kind of problem
+      options:
+        - False positive (reported, but not personal data)
+        - False negative (personal-data-like value was not reported)
+    validations:
+      required: true
+  - type: dropdown
+    id: rule
+    attributes:
+      label: Rule
+      options:
+        - DS-EMAIL-001 (email address)
+        - DS-BDPHONE-001 (Bangladeshi mobile number)
+    validations:
+      required: true
+  - type: textarea
+    id: shape
+    attributes:
+      label: Synthetic example of the shape
+      description: Replace every real character with a synthetic one that keeps the same structure.
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Where does this kind of value occur (file type, format)?
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: Confirmation
+      options:
+        - label: Nothing I wrote here is real personal data.
+          required: true

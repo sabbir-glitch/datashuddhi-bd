@@ -1,0 +1,20 @@
+# Let Git detect text files, then pin the line endings that matter.
+* text=auto
+
+# Source, config and docs: LF everywhere so ruff, pyright and diffs behave the same on Windows and Linux.
+*.py   text eol=lf
+*.toml text eol=lf
+*.md   text eol=lf
+*.yml  text eol=lf
+*.yaml text eol=lf
+*.txt  text eol=lf
+LICENSE text eol=lf
+
+# Windows scripts: CRLF.
+*.ps1 text eol=crlf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Never touch binary archives.
+*.zip binary
+*.png binary

@@ -1,0 +1,13 @@
+# Known-good versions of the DEVELOPMENT tools (not runtime dependencies; the runtime has none).
+# Generated on Linux / Python 3.13 with: pip freeze --exclude-editable
+# Used as: pip install -e ".[dev]" -c constraints-dev.txt
+# Platform-specific helpers (e.g. colorama on Windows) are intentionally left unpinned.
+iniconfig==2.3.1
+nodeenv==1.11.0
+packaging==26.3
+pluggy==1.6.0
+pygments==2.21.0
+pyright==1.1.414
+pytest==9.1.1
+ruff==0.17.0
+typing-extensions==4.16.0
