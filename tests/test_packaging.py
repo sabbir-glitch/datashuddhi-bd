@@ -54,7 +54,7 @@ GOOD_WHEEL = [
 
 
 def test_manifest_prunes_tests_and_nothing_else() -> None:
-    assert (ROOT / "MANIFEST.in").read_bytes() == b"prune tests\n"
+    assert (ROOT / "MANIFEST.in").read_text(encoding="utf-8") == "prune tests\n"
 
 
 def test_good_sdist_has_no_problems() -> None:
