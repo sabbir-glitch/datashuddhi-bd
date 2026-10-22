@@ -1,0 +1,144 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens. Dark-first; the light set is defined but there is no theme switch yet.
+ * Text and control colours are checked against WCAG 2.2 AA contrast by tests/contrast.test.ts,
+ * which reads the values below. That test is a calculation, not a manual accessibility review.
+ */
+@theme inline {
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, "Cascadia Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+
+  --color-page: var(--ds-page);
+  --color-surface: var(--ds-surface);
+  --color-surface-2: var(--ds-surface-2);
+  --color-line: var(--ds-border);
+  --color-line-strong: var(--ds-border-strong);
+  --color-fg: var(--ds-text);
+  --color-muted: var(--ds-text-muted);
+  --color-brand: var(--ds-brand);
+  --color-brand-fg: var(--ds-brand-fg);
+  --color-success: var(--ds-success);
+  --color-warning: var(--ds-warning);
+  --color-danger: var(--ds-danger);
+
+  --radius-card: var(--ds-radius-card);
+  --radius-control: var(--ds-radius-control);
+}
+
+:root {
+  color-scheme: dark;
+  --ds-page: #0b0d12;
+  --ds-surface: #12151c;
+  --ds-surface-2: #181c25;
+  --ds-border: #2a3140;
+  --ds-border-strong: #6e7a92; /* outlines of controls and status labels: >= 3:1 on the page */
+  --ds-text: #f3f5f8;
+  --ds-text-muted: #a3adbd;
+  --ds-brand: #8b7cf6;
+  --ds-brand-fg: #b8aefb;
+  --ds-success: #3ddc97; /* reserved for verified successful operations */
+  --ds-warning: #f5a524; /* warnings and unresolved findings */
+  --ds-danger: #f47272; /* errors */
+
+  --ds-radius-card: 0.75rem;
+  --ds-radius-control: 0.5rem;
+  --ds-space-gutter: 1rem;
+  --ds-space-section: 2.5rem;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  --ds-page: #fafbfc;
+  --ds-surface: #ffffff;
+  --ds-surface-2: #f1f4f8;
+  --ds-border: #cfd6e2;
+  --ds-border-strong: #76819a;
+  --ds-text: #0f141b;
+  --ds-text-muted: #455063;
+  --ds-brand: #5b4bd6;
+  --ds-brand-fg: #4636b8;
+  --ds-success: #0f7a50;
+  --ds-warning: #8f5400;
+  --ds-danger: #b42323;
+}
+
+/* Base styles live in the base layer so that Tailwind utilities (for example text-page or
+   no-underline on a button-styled link) can override them. Unlayered CSS would always win. */
+@layer base {
+  html {
+    background: var(--ds-page);
+    color: var(--ds-text);
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: var(--font-sans);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a {
+    color: var(--ds-brand-fg);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  code,
+  kbd,
+  pre {
+    font-family: var(--font-mono);
+  }
+
+  :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 2px solid var(--ds-brand-fg);
+    outline-offset: 3px;
+    border-radius: 0.25rem;
+  }
+}
+
+/* Faint technical grid behind the hero. Decorative only; the mask fades the grid, not the content. */
+.ds-grid-bg {
+  position: relative;
+  isolation: isolate;
+}
+
+.ds-grid-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image:
+    linear-gradient(
+      to right,
+      color-mix(in srgb, var(--ds-border) 55%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--ds-border) 55%, transparent) 1px,
+      transparent 1px
+    );
+  background-size: 48px 48px;
+  mask-image: linear-gradient(to bottom, #000 40%, transparent);
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

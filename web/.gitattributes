@@ -1,0 +1,5 @@
+# web/ sources use LF on every platform so Prettier and diffs behave the same on Windows and Linux.
+* text=auto eol=lf
+*.png binary
+*.ico binary
+*.woff2 binary
