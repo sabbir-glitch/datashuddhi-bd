@@ -14,6 +14,7 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 WORKFLOWS = sorted((ROOT / ".github" / "workflows").glob("*.yml"))
 CI = ROOT / ".github" / "workflows" / "ci.yml"
+WEB = ROOT / ".github" / "workflows" / "web.yml"
 
 
 def text(path: Path) -> str:
@@ -57,12 +58,53 @@ def test_workflow_security_rules(workflow: Path) -> None:
     assert checkouts == content.count("persist-credentials: false")
 
 
+def job_count(content: str) -> int:
+    """Number of top-level jobs in workflow text (comments already removed)."""
+    jobs_section = content.split("\njobs:\n", 1)[1]
+    return len(re.findall(r"^  [\w-]+:\s*$", jobs_section, flags=re.MULTILINE))
+
+
+def every_job_has_a_timeout(content: str) -> bool:
+    """True if the workflow has at least one job and exactly one timeout per job."""
+    jobs = job_count(content)
+    return jobs >= 1 and content.count("timeout-minutes:") == jobs
+
+
 @pytest.mark.parametrize("workflow", WORKFLOWS, ids=lambda p: p.name)
 def test_every_job_has_a_timeout(workflow: Path) -> None:
-    content = code(workflow)
-    jobs = len(re.findall(r"^  [\w-]+:\s*$", content.split("\njobs:\n", 1)[1], flags=re.MULTILINE))
-    assert jobs >= 5
-    assert content.count("timeout-minutes:") == jobs
+    # Applies to every workflow file. It must not assume how many jobs a workflow has: the number
+    # of jobs is a property of each workflow, not of the rule (web.yml deliberately has one).
+    assert every_job_has_a_timeout(code(workflow))
+
+
+def test_python_ci_workflow_keeps_its_multi_job_structure() -> None:
+    # Specific to ci.yml, which runs several independent Python jobs. Other workflows, such as
+    # web.yml, are separate pipelines and are not required to have this many jobs.
+    assert job_count(code(CI)) >= 5
+
+
+@pytest.mark.skipif(not WEB.exists(), reason="web.yml is not present on this branch")
+def test_web_workflow_is_a_single_job_with_a_timeout() -> None:
+    content = code(WEB)
+    assert job_count(content) == 1
+    assert content.count("timeout-minutes:") == 1
+    assert every_job_has_a_timeout(content)
+
+
+_ONE_JOB = "name: x\njobs:\n  only:\n    runs-on: ubuntu-latest\n    timeout-minutes: 5\n"
+
+
+def test_timeout_rule_accepts_a_single_job_workflow() -> None:
+    assert job_count(_ONE_JOB) == 1
+    assert every_job_has_a_timeout(_ONE_JOB)
+
+
+def test_timeout_rule_still_rejects_missing_timeouts() -> None:
+    no_timeout = _ONE_JOB.replace("    timeout-minutes: 5\n", "")
+    assert not every_job_has_a_timeout(no_timeout)
+    two_jobs_one_timeout = _ONE_JOB + "  second:\n    runs-on: ubuntu-latest\n"
+    assert job_count(two_jobs_one_timeout) == 2
+    assert not every_job_has_a_timeout(two_jobs_one_timeout)
 
 
 def test_pull_requests_and_pushes_trigger_ci_and_no_other_events() -> None:
