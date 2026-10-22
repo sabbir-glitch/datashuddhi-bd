@@ -1,0 +1,96 @@
+# Web application checks (Phase 0 foundation). Independent of the Python workflow in ci.yml.
+#
+# VERIFICATION STATUS: this workflow has NOT been run on GitHub. Its steps were run locally in a
+# separate checkout; see web/README.md. Results of real runs are tracked in the repository's
+# Actions tab and are deliberately not recorded in this comment.
+#
+# Action references are pinned to full commit SHAs:
+#   actions/checkout    3d3c42e5aac5ba805825da76410c181273ba90b1  (v7.0.1, node24 runtime)
+#   actions/setup-node  949feb2413d6458794dcd2491c4babbbce0c15c1  (v7.1.0, node24 runtime)
+# Same checkout pin as ci.yml. SHAs were checked with `git ls-remote --tags` against the official
+# action repositories.
+name: Web
+
+on:
+  push:
+    paths:
+      - "web/**"
+      - ".github/workflows/web.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "web/**"
+      - ".github/workflows/web.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: web-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NEXT_TELEMETRY_DISABLED: "1"
+
+jobs:
+  web:
+    name: Lint, types, tests, static build, audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: web/.nvmrc
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Show toolchain versions
+        run: |
+          node --version
+          npm --version
+
+      - name: Install from the lockfile
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Format check
+        run: npm run format:check
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Tests
+        run: npm test
+
+      - name: Static production build
+        run: npm run build
+
+      - name: Check static export output
+        run: |
+          test -f out/index.html
+          test -f out/scan/index.html
+
+      # Both audits run through web/scripts/audit-check.mts, which distinguishes three outcomes:
+      #   exit 0  the audit completed and reported no vulnerabilities
+      #   exit 1  the audit completed and reported vulnerabilities (listed in the log and summary)
+      #   exit 2  the audit could not complete (registry/network/other failure); never treated as a pass
+      # Release gate: production dependencies only.
+      - name: Production dependency audit
+        run: npm run audit:prod
+
+      # Always runs (even if the production audit failed) so that its result is visible. It is also
+      # blocking: any advisory, including development-only ones, fails the job and has to be
+      # handled deliberately rather than being silently ignored.
+      - name: Full dependency audit (production and development)
+        if: ${{ !cancelled() }}
+        run: npm run audit:full

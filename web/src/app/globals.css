@@ -1,0 +1,103 @@
+@import "tailwindcss";
+
+/*
+ * Phase 0 design tokens. Dark-first; the light set is defined but there is no theme switch yet.
+ * Colour values are starting points: WCAG contrast has NOT been verified and must be checked in
+ * Phase 1 before the interface is approved.
+ */
+@theme inline {
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, "Cascadia Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+
+  --color-page: var(--ds-page);
+  --color-surface: var(--ds-surface);
+  --color-surface-2: var(--ds-surface-2);
+  --color-line: var(--ds-border);
+  --color-fg: var(--ds-text);
+  --color-muted: var(--ds-text-muted);
+  --color-brand: var(--ds-brand);
+  --color-brand-fg: var(--ds-brand-fg);
+  --color-success: var(--ds-success);
+  --color-warning: var(--ds-warning);
+  --color-danger: var(--ds-danger);
+
+  --radius-card: var(--ds-radius-card);
+  --radius-control: var(--ds-radius-control);
+}
+
+:root {
+  color-scheme: dark;
+  --ds-page: #0b0d12;
+  --ds-surface: #12151c;
+  --ds-surface-2: #181c25;
+  --ds-border: #2a3140;
+  --ds-text: #f3f5f8;
+  --ds-text-muted: #a3adbd;
+  --ds-brand: #8b7cf6;
+  --ds-brand-fg: #b8aefb;
+  --ds-success: #3ddc97; /* reserved for verified successful operations */
+  --ds-warning: #f5a524; /* warnings and unresolved findings */
+  --ds-danger: #f47272; /* errors */
+
+  --ds-radius-card: 0.75rem;
+  --ds-radius-control: 0.5rem;
+  --ds-space-gutter: 1rem;
+  --ds-space-section: 2.5rem;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  --ds-page: #fafbfc;
+  --ds-surface: #ffffff;
+  --ds-surface-2: #f1f4f8;
+  --ds-border: #cfd6e2;
+  --ds-text: #0f141b;
+  --ds-text-muted: #455063;
+  --ds-brand: #5b4bd6;
+  --ds-brand-fg: #4636b8;
+  --ds-success: #0f7a50;
+  --ds-warning: #8f5400;
+  --ds-danger: #b42323;
+}
+
+html {
+  background: var(--ds-page);
+  color: var(--ds-text);
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--ds-brand-fg);
+  text-underline-offset: 0.2em;
+}
+
+code,
+kbd,
+pre {
+  font-family: var(--font-mono);
+}
+
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--ds-brand-fg);
+  outline-offset: 3px;
+  border-radius: 0.25rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
