@@ -11,8 +11,8 @@ describe("home page", () => {
 
   it("identifies the project and its only scanner", () => {
     expect(html).toContain("DataShuddhi BD");
-    expect(html).toContain("Python command-line tool");
-    expect(html).toContain("does not scan anything");
+    expect(html).toContain("local-first command-line tool");
+    expect(html).toContain("this website cannot scan a file");
   });
 
   it("links to the repository and to the scan placeholder", () => {
@@ -21,7 +21,7 @@ describe("home page", () => {
   });
 
   it("does not claim capabilities that do not exist", () => {
-    expect(html).toContain("not implemented");
+    expect(html).toContain("Not implemented");
     for (const banned of [
       "Safe to Share",
       "Sanitized",

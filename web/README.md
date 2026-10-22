@@ -1,7 +1,7 @@
-# DataShuddhi BD web application (Phase 0 foundation)
+# DataShuddhi BD web application (Phase 0 foundation + Phase 1 landing page)
 
-> **Status: Phase 0 foundation only.** This directory contains a Next.js project skeleton, a home
-> page and a `/scan` placeholder. **There is no scanner here.** The browser-based scanner is not
+> **Status: foundation plus a static landing page.** This directory contains a Next.js project, a
+> landing page and a `/scan` placeholder. **There is no scanner here.** The browser-based scanner is not
 > implemented, nothing in this project reads, uploads or processes user files, and no results are
 > shown.
 
@@ -22,17 +22,17 @@ the Python tool's fixtures and output semantics before its results are described
 
 Run these from the `web/` directory.
 
-| Command                | What it does                                                           |
-| ---------------------- | ---------------------------------------------------------------------- |
-| `npm ci`               | Install exactly what `package-lock.json` records                       |
-| `npm run dev`          | Start the Next.js development server (http://localhost:3000)           |
-| `npm run lint`         | ESLint 10 (core, typescript-eslint and React Hooks rules)              |
-| `npm run format:check` | Prettier check (`npm run format` rewrites files)                       |
-| `npm run typecheck`    | `tsc --noEmit` with strict settings                                    |
-| `npm test`             | Vitest: page markup smoke tests and audit-classifier tests             |
-| `npm run build`        | Static production build; output goes to `out/`                         |
-| `npm run audit:prod`   | production-only audit via `scripts/audit-check.mts` (the release gate) |
-| `npm run audit:full`   | audit of all dependencies via `scripts/audit-check.mts`                |
+| Command                | What it does                                                                   |
+| ---------------------- | ------------------------------------------------------------------------------ |
+| `npm ci`               | Install exactly what `package-lock.json` records                               |
+| `npm run dev`          | Start the Next.js development server (http://localhost:3000)                   |
+| `npm run lint`         | ESLint 10 (core, typescript-eslint and React Hooks rules)                      |
+| `npm run format:check` | Prettier check (`npm run format` rewrites files)                               |
+| `npm run typecheck`    | `tsc --noEmit` with strict settings                                            |
+| `npm test`             | Vitest: page markup, landing-page content, contrast and audit-classifier tests |
+| `npm run build`        | Static production build; output goes to `out/`                                 |
+| `npm run audit:prod`   | production-only audit via `scripts/audit-check.mts` (the release gate)         |
+| `npm run audit:full`   | audit of all dependencies via `scripts/audit-check.mts`                        |
 
 Next.js collects anonymous usage telemetry for its own tooling by default. This project adds no
 analytics, but you can opt out of Next.js's telemetry with the environment variable
@@ -83,9 +83,12 @@ web/
   .gitattributes, .gitignore        LF in web/; build, test and env output ignored
   .nvmrc                            Node 24.22.1
   public/                           static assets (empty for now)
-  src/app/                          layout, home page, /scan placeholder, global CSS tokens
-  src/lib/constants.ts              repository URL
-  tests/pages.test.tsx              page smoke tests
+  src/app/                          layout, home page (landing), /scan placeholder, global CSS tokens
+  src/components/landing/           landing page sections (Server Components, no client JS)
+  src/lib/constants.ts              repository and documentation URLs, section list
+  tests/pages.test.tsx              page smoke tests and /scan placeholder tests
+  tests/landing.test.tsx            landing page content, navigation, structure and safety tests
+  tests/contrast.test.ts            WCAG contrast ratios computed from the CSS tokens
   tests/audit-check.test.ts         audit classifier tests (fixtures in tests/fixtures/)
 ```
 
@@ -97,8 +100,44 @@ success, warning, danger, radii, spacing) with a defined light set under
 never depend on an online font download. Keyboard focus styles and `prefers-reduced-motion` are
 included.
 
-**Not yet verified:** WCAG colour contrast, full keyboard testing and an accessibility review. These
-are required before the real interface is approved in Phase 1.
+**Accessibility status.** `tests/contrast.test.ts` computes WCAG contrast ratios from the real token
+values for both themes (text 4.5:1, control outlines and focus ring 3:1). In a scratch Chromium run
+(not part of the repository) axe-core 4.14.0 reported no violations on `/` and `/scan/` in dark and
+light colour schemes; it listed `color-contrast` as "incomplete" on `/` because of the hero's
+background grid, which the computed test covers. Automated checks do not replace a manual review.
+Keyboard order, visible focus, zoom and a screen-reader pass still need to be done by a person on
+Windows (see the checklist below). Playwright and axe-core are deliberately **not** project
+dependencies yet: they would add a browser download to every install and CI run.
+
+## Landing page (Phase 1)
+
+The home page is a static, server-rendered page made of sections in `src/components/landing/`
+(header, hero with an illustrative terminal, how it works, detection scope, privacy, closing call to
+action, footer). It describes the **Python command-line tool**. It contains no scanner, upload
+control, form or script of its own, and loads no remote resources.
+
+- **Illustrative terminal.** The text is shortened output of the real command-line tool
+  (0.1.0.dev0) run on a two-line synthetic file. It is labelled "Illustrative output, not a live
+  scan" and shows masked values only.
+- **Links.** Internal navigation uses plain `<a>` elements (see above). Every target exists: the
+  four in-page sections, `/scan/`, the repository and three documents in the repository's
+  `docs/` folder on `main`. Tests check this list.
+- **Claims.** Tests fail if the page drops the "not implemented" list, the "website cannot scan a
+  file" statements or the illustrative label, or if it gains upload controls, scripts or phrases
+  such as "safe to share".
+
+### Manual checks to do on Windows (Chrome)
+
+1. `npm ci`, the checks, `npm run build`, then `py -m http.server 4173 --directory out`.
+2. Open http://localhost:4173/ at roughly 360, 768 and 1280 px wide (Chrome DevTools device bar):
+   no horizontal scrolling, no clipped text in the terminal, header links wrap cleanly.
+3. Tab through the page from the top: the skip link appears first, every link shows a visible focus
+   ring, and the order matches the visual order.
+4. Click each header link and each in-page link; click "Browser scanner status" and then "Back to the
+   home page". In DevTools, Network tab, no request should return 404 or load a `__next.*.txt` file.
+5. Zoom to 200% and 400%: content remains readable and reachable.
+6. Optional: turn on "Reduce motion" in Windows and confirm that nothing animates (the page has no
+   animation; smooth scrolling is only enabled when motion is not reduced).
 
 ## Privacy boundary
 
